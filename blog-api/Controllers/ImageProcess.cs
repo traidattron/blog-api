@@ -80,6 +80,7 @@ namespace blog_api.Controllers
                     };
                     await  _serviceBus.SendMessageAsync(newImage);
                     await _cosmosService.UpsertImage(newImage);
+                    await _serviceBus.TopicSendMessageAsync(newImage);
                         
                 }
                 else

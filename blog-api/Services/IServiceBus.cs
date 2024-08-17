@@ -6,6 +6,9 @@ namespace AzureServiceBusDemo.Repositories
     public interface IServiceBus
     {
         Task SendMessageAsync<T>(T messageDetail);
+        Task TopicSendMessageAsync<T>(T messageDetail);
+
         Task RecieveMessageAsync(string messageDetail);
+
     }
 }
