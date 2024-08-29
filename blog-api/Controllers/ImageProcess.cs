@@ -35,25 +35,7 @@ namespace blog_api.Controllers
         {
             return id+1;
         }
-        //[HttpPost("20")]
-        //public async Task<IActionResult> UploadImage(IFormFile image)
-        //{
-        //    if (image == null || image.Length == 0)
-        //        return BadRequest("No file uploaded.");
-
-        //    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", image.FileName);
-
-        //    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-        //    using (var stream = new FileStream(filePath, FileMode.Create))
-        //    {
-        //        await image.CopyToAsync(stream);
-        //    }
-
-        //    // Process the image if needed (e.g., save it to a database, perform analysis, etc.)
-
-        //    return Ok(new { filePath });
-        //}
+       
         [HttpPost("upload-image")]
         
         public async Task<ActionResult> UploadImage(
@@ -80,7 +62,7 @@ namespace blog_api.Controllers
                     };
                     await  _serviceBus.SendMessageAsync(newImage);
                     await _cosmosService.UpsertImage(newImage);
-                    await _serviceBus.TopicSendMessageAsync(newImage);
+                    //await _serviceBus.TopicSendMessageAsync(newImage);
                         
                 }
                 else

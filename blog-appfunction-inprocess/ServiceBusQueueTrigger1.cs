@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
+using AzureServiceBusDemo.Repositories;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
@@ -20,6 +22,55 @@ namespace Company.Function
 {
     public class ServiceBusQueueTrigger1
     {
+        private readonly IServiceBus _serviceBus;
+        public ServiceBusQueueTrigger1(IServiceBus serviceBus)
+        {
+            this._serviceBus = serviceBus;
+        }
+        public async Task TopicSendMessageAsync<Image>(Image messageDetail, ILogger ilogger)
+        {
+            ServiceBusClient client;
+            ServiceBusSender sender;
+            const int numOfMessages = 1;
+
+            ilogger.LogInformation("AzureServiceBusKeyConnectionString: ",Environment.GetEnvironmentVariable("AzureServiceBusConnectionString"));
+            ilogger.LogInformation("TopicName: ", Environment.GetEnvironmentVariable("TopicName"));
+            client = new ServiceBusClient(Environment.GetEnvironmentVariable("AzureServiceBusConnectionString"));
+            sender = client.CreateSender(Environment.GetEnvironmentVariable("TopicName"));
+            ilogger.LogInformation("already connect to topic");
+
+            using ServiceBusMessageBatch messageBatch = await sender.CreateMessageBatchAsync();
+            ilogger.LogInformation("already create batch");
+            for (int i = 1; i <= numOfMessages; i++)
+            {
+                ilogger.LogInformation("in the loop create batch");
+                // try adding a message to the batch
+                if (!messageBatch.TryAddMessage(new ServiceBusMessage(JsonConvert.SerializeObject(messageDetail))))
+                {
+                    // if it is too large for the batch
+                    throw new Exception($"The message {i} is too large to fit in the batch.");
+                }
+            }
+
+            try
+            {
+                ilogger.LogInformation("sending message batch ...");
+                // Use the producer client to send the batch of messages to the Service Bus topic
+                await sender.SendMessagesAsync(messageBatch);
+                ilogger.LogInformation("sent message batch ...");
+                //Console.WriteLine($"A batch of {numOfMessages} messages has been published to the topic.");
+            }
+            finally
+            {
+                // Calling DisposeAsync on client types is required to ensure that network
+                // resources and other unmanaged objects are properly cleaned up.
+                await sender.DisposeAsync();
+                await client.DisposeAsync();
+            }
+
+            //Console.WriteLine("Press any key to end the application");
+            //Console.ReadKey();
+        }
         private static IImageEncoder GetEncoder(string extension)
         {
             IImageEncoder encoder = null;
@@ -48,22 +99,27 @@ namespace Company.Function
             return encoder;
         }
         [FunctionName("ServiceBusQueueTrigger1")]
-        public static async Task Run([ServiceBusTrigger("blog-queue-1", Connection = "blogservicebus_SERVICEBUS")]string myQueueItem, 
+        public async Task Run([ServiceBusTrigger("blog-queue-1", Connection = "blogservicebus_SERVICEBUS")]string myQueueItem, 
             ILogger log)
         {
+
             log.LogInformation($"C# ServiceBus queue trigger function processed message: {myQueueItem}");
             var resizedInfo = JsonConvert.DeserializeObject<ImageResizeDto>(myQueueItem);
-            log.LogInformation("Connect blob");
+
+            log.LogInformation("Connect blob: ", Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
             var storageConn = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var storageAcc = CloudStorageAccount.Parse(storageConn);
             var myClient = storageAcc.CreateCloudBlobClient();
+
             log.LogInformation("connect Container");
             var container = myClient.GetContainerReference("blog-container");
+            
             log.LogInformation("Check container exist");
             await container.CreateIfNotExistsAsync();
             var blobName = resizedInfo.FileName;
             var cloudBlokBlob = container.GetBlobReference(blobName);
             var ms = new MemoryStream();
+            
             log.LogInformation(cloudBlokBlob.Name);
             await cloudBlokBlob.DownloadToStreamAsync(ms);
             byte[] bytes = ms.ToArray();
@@ -93,11 +149,17 @@ namespace Company.Function
                 {
                     log.LogInformation("Upload to blob has started");
                     var uploadResut = await blobContainerClient.UploadBlobAsync(newFileName, output);
-                    log.LogInformation($"Result: {uploadResut.Value.VersionId}");
+                    //log.LogInformation($"Result: {uploadResut.Value?.VersionId}");
+                
                 }
 
-            }
-            
+            };
+
+            //send message to topic
+            log.LogInformation($"Send message to topic");
+           
+            TopicSendMessageAsync(blobName, log).Wait();
+
         }
     }
 }

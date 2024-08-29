@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blog-api", "blog-api\blog-a
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blog-servicebus", "blog-servicebus\blog-servicebus.csproj", "{7A769FFB-5B8F-472A-B4A1-A36A3D1C9A6A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "blog-appfunction-inprocess", "blog-appfunction-inprocess\blog-appfunction-inprocess.csproj", "{3053E6F3-14E3-4B3E-9F2E-F9F5A4BC46DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{7A769FFB-5B8F-472A-B4A1-A36A3D1C9A6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A769FFB-5B8F-472A-B4A1-A36A3D1C9A6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A769FFB-5B8F-472A-B4A1-A36A3D1C9A6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3053E6F3-14E3-4B3E-9F2E-F9F5A4BC46DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3053E6F3-14E3-4B3E-9F2E-F9F5A4BC46DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3053E6F3-14E3-4B3E-9F2E-F9F5A4BC46DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3053E6F3-14E3-4B3E-9F2E-F9F5A4BC46DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

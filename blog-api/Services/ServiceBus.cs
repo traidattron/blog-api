@@ -37,6 +37,8 @@ namespace AzureServiceBusDemo.Repositories
             ServiceBusClient client;
             ServiceBusSender sender;
             const int numOfMessages = 1;
+          
+
             client = new ServiceBusClient(_configuration["AzureServiceBusConnectionString"]);
             sender = client.CreateSender(_configuration["TopicName"]);
             using ServiceBusMessageBatch messageBatch = await sender.CreateMessageBatchAsync();
