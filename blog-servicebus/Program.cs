@@ -3,8 +3,8 @@
 using Azure.Messaging.ServiceBus;
 
 
-const string connectionString = "Endpoint=sb://blog-service-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=WjuVF9EY6LJ1P1io69VyVZwK7WzoK8tIW+ASbIqqK78=";
-const string queueName = "blog-queue-1";
+const string connectionString = "";
+const string queueName = "";
 const int maxNumberOfMessages = 3;
 
 ServiceBusClient client;
